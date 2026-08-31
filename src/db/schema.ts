@@ -34,7 +34,7 @@ export const mountains = pgTable('mountains', {
     mode: 'number',
   }).notNull(),
   createdBy: text('created_by').notNull().default('admin'),
-  updatedAt: bigint('created_at', {
+  updatedAt: bigint('updated_at', {
     mode: 'number',
   }),
   updatedBy: text('updated_by'),
@@ -53,7 +53,7 @@ export const mountainImages = pgTable('mountain_images', {
     mode: 'number',
   }).notNull(),
   createdBy: text('created_by').notNull().default('admin'),
-  updatedAt: bigint('created_at', {
+  updatedAt: bigint('updated_at', {
     mode: 'number',
   }),
   updatedBy: text('updated_by'),
