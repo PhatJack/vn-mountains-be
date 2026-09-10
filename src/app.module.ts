@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { DatabaseModule } from './db/database.module.js';
@@ -7,7 +8,12 @@ import { MountainImagesModule } from './mountain-images/mountain-images.module.j
 import { LoggerMiddleware } from './logger/logger.middleware.js';
 
 @Module({
-  imports: [DatabaseModule, MountainsModule, MountainImagesModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env.local', '.env'] }),
+    DatabaseModule,
+    MountainsModule,
+    MountainImagesModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

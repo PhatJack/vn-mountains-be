@@ -21,7 +21,7 @@ const data: OverpassNode[] = JSON.parse(
   ),
 );
 
-const filtered = data.filter((el) => el.tags.name);
+const filtered = data.filter((el) => el.tags.name || el.tags.ele);
 
 const rows = filtered.map((el) => ({
   osmId: el.id,

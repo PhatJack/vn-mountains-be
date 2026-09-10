@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { MountainsService } from './mountains.service.js';
 import { CreateMountainDto } from './dto/create-mountain.dto.js';
 import { UpdateMountainDto } from './dto/update-mountain.dto.js';
@@ -19,16 +27,19 @@ export class MountainsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.mountainsService.findOne(+id);
+    return this.mountainsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMountainDto: UpdateMountainDto) {
-    return this.mountainsService.update(+id, updateMountainDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateMountainDto: UpdateMountainDto,
+  ) {
+    return this.mountainsService.update(id, updateMountainDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.mountainsService.remove(+id);
+    return this.mountainsService.remove(id);
   }
 }
