@@ -2,6 +2,7 @@ import {
   bigint,
   doublePrecision,
   integer,
+  jsonb,
   pgTable,
   text,
   uuid,
@@ -30,6 +31,7 @@ export const mountains = pgTable('mountains', {
   }),
   description: text('description'),
   imageUrl: text('image_url'),
+  tags: jsonb('tags'),
   createdAt: bigint('created_at', {
     mode: 'number',
   }).notNull(),
