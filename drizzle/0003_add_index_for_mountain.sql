@@ -1,0 +1,1 @@
+CREATE INDEX "mountains_latitude_longitude_idx" ON "mountains" USING btree ("latitude","longitude");

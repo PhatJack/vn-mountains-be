@@ -1,6 +1,7 @@
 import {
   bigint,
   doublePrecision,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -9,38 +10,47 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 
-export const mountains = pgTable('mountains', {
-  id: uuid().defaultRandom().primaryKey(),
-  osmId: bigint('osm_id', {
-    mode: 'number',
-  }).unique(),
-  name: varchar('name', {
-    length: 250,
-  }).notNull(),
-  nameAscii: varchar('name_ascii', {
-    length: 250,
-  }),
-  altName: varchar('alt_name', {
-    length: 250,
-  }),
-  latitude: doublePrecision('latitude').notNull(),
-  longitude: doublePrecision('longitude').notNull(),
-  elevation: doublePrecision('elevation'),
-  province: varchar('province', {
-    length: 100,
-  }),
-  description: text('description'),
-  imageUrl: text('image_url'),
-  tags: jsonb('tags'),
-  createdAt: bigint('created_at', {
-    mode: 'number',
-  }).notNull(),
-  createdBy: text('created_by').notNull().default('admin'),
-  updatedAt: bigint('updated_at', {
-    mode: 'number',
-  }),
-  updatedBy: text('updated_by'),
-});
+export const mountains = pgTable(
+  'mountains',
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    osmId: bigint('osm_id', {
+      mode: 'number',
+    }).unique(),
+    name: varchar('name', {
+      length: 250,
+    }).notNull(),
+    nameAscii: varchar('name_ascii', {
+      length: 250,
+    }),
+    altName: varchar('alt_name', {
+      length: 250,
+    }),
+    latitude: doublePrecision('latitude').notNull(),
+    longitude: doublePrecision('longitude').notNull(),
+    elevation: doublePrecision('elevation'),
+    province: varchar('province', {
+      length: 100,
+    }),
+    description: text('description'),
+    imageUrl: text('image_url'),
+    tags: jsonb('tags'),
+    createdAt: bigint('created_at', {
+      mode: 'number',
+    }).notNull(),
+    createdBy: text('created_by').notNull().default('admin'),
+    updatedAt: bigint('updated_at', {
+      mode: 'number',
+    }),
+    updatedBy: text('updated_by'),
+  },
+  (table) => [
+    index('mountains_latitude_longitude_idx').on(
+      table.latitude,
+      table.longitude,
+    ),
+  ],
+);
 
 export const mountainImages = pgTable('mountain_images', {
   id: uuid().defaultRandom().primaryKey(),
