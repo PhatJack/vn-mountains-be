@@ -3,7 +3,7 @@ import { eq, sql } from 'drizzle-orm';
 import type { InferInsertModel } from 'drizzle-orm';
 import type { DrizzleDB, Mountain } from '../db/type.js';
 import { DATABASE } from '../db/database.provider.js';
-import { mountains } from '../db/schema.js';
+import { mountainImages, mountains } from '../db/schema.js';
 
 export interface MountainListRow {
   osmId: number | null;
@@ -39,6 +39,21 @@ export class MountainsRepository {
       .from(mountains)
       .where(eq(mountains.id, id));
     return row ?? null;
+  }
+
+  async findOneByOsmId(osmId: number) {
+    const rows = await this.db
+      .select({ mountain: mountains, image: mountainImages })
+      .from(mountains)
+      .leftJoin(mountainImages, eq(mountainImages.mountainId, mountains.id))
+      .where(eq(mountains.osmId, osmId));
+
+    if (!rows.length) return null;
+
+    return {
+      mountain: rows[0].mountain,
+      images: rows.flatMap(({ image }) => (image ? [image] : [])),
+    };
   }
 
   create(values: MountainInsertValues): Promise<Mountain> {

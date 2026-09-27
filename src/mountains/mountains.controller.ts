@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { MountainsService } from './mountains.service.js';
 import { CreateMountainDto } from './dto/create-mountain.dto.js';
@@ -21,7 +23,17 @@ export class MountainsController {
   }
 
   @Get()
-  findAll() {
+  findAll(@Query('id') id?: string) {
+    if (id !== undefined) {
+      const osmId = Number(id);
+
+      if (!Number.isSafeInteger(osmId)) {
+        throw new BadRequestException('The id query parameter must be an integer');
+      }
+
+      return this.mountainsService.findOneByOsmId(osmId);
+    }
+
     return this.mountainsService.findAll();
   }
 

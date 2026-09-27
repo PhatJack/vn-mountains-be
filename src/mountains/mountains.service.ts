@@ -39,6 +39,35 @@ export class MountainsService {
     return row;
   }
 
+  async findOneByOsmId(osmId: number) {
+    const result = await this.repo.findOneByOsmId(osmId);
+
+    if (!result) {
+      throw new NotFoundException(`Mountain with OSM id #${osmId} not found`);
+    }
+
+    const { mountain, images } = result;
+
+    return {
+      id: mountain.osmId,
+      name: mountain.name,
+      nameAscii: mountain.nameAscii,
+      altName: mountain.altName,
+      elevation: mountain.elevation,
+      lat: mountain.latitude,
+      lng: mountain.longitude,
+      province: mountain.province,
+      description: mountain.description,
+      imageUrl: mountain.imageUrl,
+      tags: mountain.tags,
+      createdAt: mountain.createdAt,
+      updatedAt: mountain.updatedAt,
+      images: images
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map(({ id, imageUrl, sortOrder }) => ({ id, imageUrl, sortOrder })),
+    };
+  }
+
   async create(createMountainDto: CreateMountainDto) {
     return this.repo.create({
       osmId: createMountainDto.osmId ?? null,
