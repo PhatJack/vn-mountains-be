@@ -6,7 +6,7 @@ import { R2Service } from '../r2/r2.service.js';
 @Injectable()
 export class MountainImagesService {
   constructor(
-    private readonly imagesRepo: MountainImagesRepository,
+    private readonly mountainImagesRepo: MountainImagesRepository,
     private readonly mountainsRepo: MountainsRepository,
     private readonly r2Service: R2Service,
   ) {}
@@ -19,7 +19,7 @@ export class MountainImagesService {
 
     const uploaded = await this.r2Service.uploadBuffer(mountainId, file);
     try {
-      const image = await this.imagesRepo.create({
+      const image = await this.mountainImagesRepo.create({
         mountainId,
         image: uploaded.url,
         createdAt: Date.now(),
@@ -33,17 +33,17 @@ export class MountainImagesService {
 
   async findAll(mountainId: string) {
     await this.assertMountain(mountainId);
-    const images = await this.imagesRepo.findByMountainId(mountainId);
+    const images = await this.mountainImagesRepo.findByMountainId(mountainId);
     return images.map((image) => this.toResponse(image));
   }
 
   async remove(mountainId: string, imageId: string) {
-    const image = await this.imagesRepo.findOne(imageId);
+    const image = await this.mountainImagesRepo.findOne(imageId);
     if (!image || image.mountainId !== mountainId) {
       throw new NotFoundException(`Image #${imageId} not found`);
     }
 
-    const removed = await this.imagesRepo.remove(imageId);
+    const removed = await this.mountainImagesRepo.remove(imageId);
     if (removed) {
       await this.r2Service.deleteByUrl(removed.image);
     }
