@@ -4,6 +4,7 @@ import {
   index,
   integer,
   jsonb,
+  pgEnum,
   pgTable,
   text,
   uuid,
@@ -52,21 +53,51 @@ export const mountains = pgTable(
   ],
 );
 
+export const mountainImageStatus = pgEnum('mountain_image_status', [
+  'pending',
+  'approved',
+  'rejected',
+]);
+
+export const mountainImageSubmitterRole = pgEnum(
+  'mountain_image_submitter_role',
+  ['anonymous', 'user', 'admin'],
+);
+
 export const mountainImages = pgTable('mountain_images', {
   id: uuid().defaultRandom().primaryKey(),
+
   mountainId: uuid('mountain_id')
     .notNull()
     .references(() => mountains.id, {
       onDelete: 'cascade',
     }),
+
   image: text('image').notNull(),
-  sortOrder: integer('sort_order').notNull().default(0),
+
+  status: mountainImageStatus('status').notNull().default('approved'),
+
+  rejectionReason: text('rejection_reason'),
+
+  // Information about the person submitting the image
+  submittedName: text('submitted_name'),
+
+  submittedAt: bigint('submitted_at', {
+    mode: 'number',
+  }).notNull(),
+
+  // Audit information
   createdAt: bigint('created_at', {
     mode: 'number',
   }).notNull(),
+
   createdBy: text('created_by').notNull().default('admin'),
+
   updatedAt: bigint('updated_at', {
     mode: 'number',
   }),
+
   updatedBy: text('updated_by'),
+
+  sortOrder: integer('sort_order').notNull().default(0),
 });
