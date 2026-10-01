@@ -29,6 +29,13 @@
       "when": 1789374479504,
       "tag": "0003_add_index_for_mountain",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790812800000,
+      "tag": "0004_rename_mountain_image_url",
+      "breakpoints": true
     }
   ]
 }

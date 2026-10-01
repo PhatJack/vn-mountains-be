@@ -1,26 +1,67 @@
-import { Injectable } from '@nestjs/common';
-import { CreateMountainImageDto } from './dto/create-mountain-image.dto.js';
-import { UpdateMountainImageDto } from './dto/update-mountain-image.dto.js';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { MountainImagesRepository } from './mountain-images.repo.js';
+import { MountainsRepository } from '../mountains/mountains.repo.js';
+import { R2Service } from '../r2/r2.service.js';
 
 @Injectable()
 export class MountainImagesService {
-  create(createMountainImageDto: CreateMountainImageDto) {
-    return 'This action adds a new mountainImage';
+  constructor(
+    private readonly imagesRepo: MountainImagesRepository,
+    private readonly mountainsRepo: MountainsRepository,
+    private readonly r2Service: R2Service,
+  ) {}
+
+  async create(mountainId: string, file: Express.Multer.File) {
+    const mountain = await this.mountainsRepo.findOne(mountainId);
+    if (!mountain) {
+      throw new NotFoundException(`Mountain #${mountainId} not found`);
+    }
+
+    const uploaded = await this.r2Service.uploadBuffer(mountainId, file);
+    try {
+      const image = await this.imagesRepo.create({
+        mountainId,
+        image: uploaded.url,
+        createdAt: Date.now(),
+      });
+      return this.toResponse(image);
+    } catch (error) {
+      await this.r2Service.deleteObject(uploaded.key);
+      throw error;
+    }
   }
 
-  findAll() {
-    return `This action returns all mountainImages`;
+  async findAll(mountainId: string) {
+    await this.assertMountain(mountainId);
+    const images = await this.imagesRepo.findByMountainId(mountainId);
+    return images.map((image) => this.toResponse(image));
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} mountainImage`;
+  async remove(mountainId: string, imageId: string) {
+    const image = await this.imagesRepo.findOne(imageId);
+    if (!image || image.mountainId !== mountainId) {
+      throw new NotFoundException(`Image #${imageId} not found`);
+    }
+
+    const removed = await this.imagesRepo.remove(imageId);
+    if (removed) {
+      await this.r2Service.deleteByUrl(removed.image);
+    }
+    return { id: imageId };
   }
 
-  update(id: number, updateMountainImageDto: UpdateMountainImageDto) {
-    return `This action updates a #${id} mountainImage`;
+  private async assertMountain(mountainId: string) {
+    const mountain = await this.mountainsRepo.findOne(mountainId);
+    if (!mountain) {
+      throw new NotFoundException(`Mountain #${mountainId} not found`);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} mountainImage`;
+  private toResponse(image: { id: string; image: string; sortOrder: number }) {
+    return {
+      id: image.id,
+      imageUrl: image.image,
+      sortOrder: image.sortOrder,
+    };
   }
 }

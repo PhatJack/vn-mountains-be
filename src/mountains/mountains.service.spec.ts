@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MountainsService } from './mountains.service.js';
 import { MountainsRepository } from './mountains.repo.js';
+import { R2Service } from '../r2/r2.service.js';
 
 describe('MountainsService', () => {
   let service: MountainsService;
@@ -11,12 +12,14 @@ describe('MountainsService', () => {
     update: vi.fn(),
     remove: vi.fn(),
   };
+  const mockR2 = { deletePrefix: vi.fn() };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MountainsService,
         { provide: MountainsRepository, useValue: mockRepo },
+        { provide: R2Service, useValue: mockR2 },
       ],
     }).compile();
 

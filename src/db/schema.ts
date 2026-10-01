@@ -59,7 +59,7 @@ export const mountainImages = pgTable('mountain_images', {
     .references(() => mountains.id, {
       onDelete: 'cascade',
     }),
-  imageUrl: text('image_url').notNull(),
+  image: text('image').notNull(),
   sortOrder: integer('sort_order').notNull().default(0),
   createdAt: bigint('created_at', {
     mode: 'number',

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { MountainsRepository } from './mountains.repo.js';
 import { CreateMountainDto } from './dto/create-mountain.dto.js';
 import { UpdateMountainDto } from './dto/update-mountain.dto.js';
+import { R2Service } from '../r2/r2.service.js';
 
 export interface MountainListItem {
   id: number;
@@ -13,7 +14,10 @@ export interface MountainListItem {
 
 @Injectable()
 export class MountainsService {
-  constructor(private readonly repo: MountainsRepository) {}
+  constructor(
+    private readonly repo: MountainsRepository,
+    private readonly r2Service: R2Service,
+  ) {}
 
   async findAll(): Promise<MountainListItem[]> {
     const rows = await this.repo.findAll();
@@ -64,7 +68,11 @@ export class MountainsService {
       updatedAt: mountain.updatedAt,
       images: images
         .sort((a, b) => a.sortOrder - b.sortOrder)
-        .map(({ id, imageUrl, sortOrder }) => ({ id, imageUrl, sortOrder })),
+        .map(({ id, image, sortOrder }) => ({
+          id,
+          imageUrl: image,
+          sortOrder,
+        })),
     };
   }
 
@@ -106,6 +114,7 @@ export class MountainsService {
 
   async remove(id: string) {
     await this.findOne(id);
+    await this.r2Service.deletePrefix(`mountains/${id}/`);
 
     return this.repo.remove(id);
   }

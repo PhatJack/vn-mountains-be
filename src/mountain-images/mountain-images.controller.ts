@@ -1,34 +1,64 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { MountainImagesService } from './mountain-images.service.js';
-import { CreateMountainImageDto } from './dto/create-mountain-image.dto.js';
-import { UpdateMountainImageDto } from './dto/update-mountain-image.dto.js';
 
-@Controller('mountain-images')
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_MIME_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+]);
+
+@Controller('mountains/:mountainId/images')
 export class MountainImagesController {
   constructor(private readonly mountainImagesService: MountainImagesService) {}
 
   @Post()
-  create(@Body() createMountainImageDto: CreateMountainImageDto) {
-    return this.mountainImagesService.create(createMountainImageDto);
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: MAX_FILE_SIZE },
+      fileFilter: (req, file, cb) => {
+        const accepted = ALLOWED_MIME_TYPES.has(file.mimetype);
+        cb(
+          accepted ? null : new BadRequestException('Only image files are allowed'),
+          accepted,
+        );
+      },
+    }),
+  )
+  create(
+    @Param('mountainId', new ParseUUIDPipe()) mountainId: string,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('An image file is required');
+    }
+    return this.mountainImagesService.create(mountainId, file);
   }
 
   @Get()
-  findAll() {
-    return this.mountainImagesService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.mountainImagesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMountainImageDto: UpdateMountainImageDto) {
-    return this.mountainImagesService.update(+id, updateMountainImageDto);
+  findAll(@Param('mountainId', new ParseUUIDPipe()) mountainId: string) {
+    return this.mountainImagesService.findAll(mountainId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.mountainImagesService.remove(+id);
+  remove(
+    @Param('mountainId', new ParseUUIDPipe()) mountainId: string,
+    @Param('id', new ParseUUIDPipe()) imageId: string,
+  ) {
+    return this.mountainImagesService.remove(mountainId, imageId);
   }
 }

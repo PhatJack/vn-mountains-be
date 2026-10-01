@@ -1,72 +1,119 @@
-# AI Agent Instruction: Git Commit Message Generator
+# AI Agent Instructions: Git Commit Message Generator
 
-You are a Git commit message generation engine. Your task is to output **ONLY** a raw git commit message adhering strictly to Conventional Commits and project guidelines. 
+Generate a single Git commit message from the current diff. Output only the raw
+commit message: no explanation, markdown, quotes, or surrounding whitespace.
 
----
+## Workflow
 
-## 🛑 STRICT CONSTRAINTS FOR AI OUTPUT
+1. Inspect the complete diff, including staged and unstaged changes when both
+   exist. Do not infer intent from filenames alone.
+2. Identify the primary user-facing or engineering purpose of the change.
+3. Select one type and the narrowest useful scope.
+4. Write a concise subject describing what the commit does and why it matters.
+5. Add a body only when the subject cannot explain important context, tradeoffs,
+   migration notes, or behavior changes.
+6. Add footers only when they carry actionable metadata, such as a breaking
+   change or an issue reference.
+7. Validate the final message against every rule below before outputting it.
 
-1. **NO EXPLANATIONS OR CONVERSATIONAL TEXT**: Do not include markdown code block backticks (```), intros like "Here is your commit message:", or quotes. Output the raw text directly.
-2. **HEADER LENGTH**: Total header length (`<type>(<scope>): <subject>`) MUST NOT exceed **150 characters**.
-3. **IMPERATIVE MOOD**: The `<subject>` MUST use imperative, present-tense verbs (e.g., "add", "fix", "update", "remove" — NOT "added", "fixing", "updates").
-4. **CASING & PUNCTUATION**: 
-   - `<type>` and `<subject>` MUST start in **lowercase**.
-   - Do NOT end `<subject>` with a period (`.`).
+## Required Format
 
----
+```text
+<type>[optional scope][!]: <subject>
 
-## 📌 COMMIT MESSAGE STRUCTURE
+[optional body]
 
-`<type>(<scope>): <subject>`
+[optional footer(s)]
+```
 
-`[optional body]`
+The header must not exceed 150 characters. Keep the subject under 72 characters
+when practical. Use one blank line between the header, body, and footers.
 
-`[optional footer(s)]`
+## Header Rules
 
----
+- Use exactly one type from the list below.
+- Use a scope when it clarifies the affected area; omit it when no single scope
+  represents the change.
+- Use lowercase for the type, scope, and first character of the subject.
+- Write the subject in imperative present tense: "add", "fix", "remove", or
+  "update". Do not use past tense or gerunds.
+- Describe the result and intent, not implementation details.
+- Do not end the subject with a period or other punctuation.
+- Avoid vague subjects such as "update code", "fix stuff", or "changes".
+- Do not combine unrelated changes in one message. If the diff contains several
+  independent changes, describe the dominant purpose and use the body for the
+  remaining context.
 
-## 🏷️ TYPE SELECTION SCHEME
+## Type Selection
 
-Select EXACTLY one type that best fits the main change:
+- `feat`: Add user-visible functionality or capability.
+- `fix`: Correct incorrect or unexpected behavior.
+- `docs`: Change documentation only.
+- `style`: Change formatting or whitespace without behavior changes.
+- `refactor`: Restructure code without changing behavior.
+- `perf`: Improve performance without changing intended behavior.
+- `test`: Add, update, or repair tests without changing production behavior.
+- `build`: Change dependencies, package/build configuration, or build tooling.
+- `ci`: Change continuous integration configuration or scripts.
+- `chore`: Perform maintenance that does not fit another type.
+- `revert`: Revert an earlier commit; identify the reverted commit when known.
 
-- **`feat`**: A new feature visible to the end user.
-- **`fix`**: A bug fix visible to the end user.
-- **`docs`**: Documentation-only changes.
-- **`style`**: Code formatting, missing semicolons, etc. (No runtime/logic change).
-- **`refactor`**: Code changes that neither fix a bug nor add a feature.
-- **`perf`**: A code change that improves performance.
-- **`test`**: Adding missing tests or correcting existing tests.
-- **`build`**: Changes affecting the build system or external dependencies.
-- **`ci`**: Changes to CI configuration files and scripts.
-- **`chore`**: Maintenance, utility script changes, build tasks.
-- **`revert`**: Reverts a previous commit.
+Choose the type based on the primary purpose. For example, use `fix` for a bug
+fix that also adds regression tests, and use `feat` for a feature that includes
+its tests.
 
----
+## Scope Rules
 
-## 🎯 SCOPE SELECTION (RECOMMENDED)
+Derive the scope from the main module, domain, or package affected. Use one
+lowercase identifier with no spaces, such as `auth`, `mountains`, `images`,
+`api`, `db`, `config`, `deps`, or `ci`. Do not use a scope merely to repeat the
+repository name. Omit the scope when the change is broad or no scope is useful.
 
-Extract the scope from the affected file paths or module names (lowercase, no spaces).
+## Body and Footer Rules
 
-- **Common Scopes**: `auth`, `dashboard`, `api`, `ui`, `profile`, `settings`, `database`, `deps`, `config`
-- *Example*: Modifying `src/components/auth/Login.tsx` $\rightarrow$ Scope: `auth` or `ui`
+- Explain why the change was needed and any behavior that reviewers or users
+  should understand; do not restate the diff line by line.
+- Wrap body lines at about 72 characters when practical.
+- Mention migrations, compatibility concerns, operational steps, or known
+  limitations when they are relevant.
+- For breaking changes, either append `!` to the type/scope or add a footer in
+  this exact form: `BREAKING CHANGE: <what breaks and how to migrate>`.
+- Put issue references at the end using `Fixes #123` or `Closes #123` when the
+  diff or task provides an issue number. Never invent issue numbers.
+- Do not add `Signed-off-by`, co-author, or generated-by footers unless they are
+  explicitly requested.
 
----
+## Examples
 
-## 📝 SUBJECT LINE PROTOCOL
+```text
+feat(mountains): add elevation search filters
+```
 
-1. Analyze the git diff to identify the core **intent** of the change.
-2. Summarize *what* changed and *why*, not *how*.
-3. Keep it brief, actionable, and under **72 characters** if possible (hard cap: 150 characters total header).
+```text
+fix(api): reject invalid mountain coordinates
 
----
+Validate latitude and longitude before persisting a mountain so malformed
+requests return a client error instead of a database failure.
+```
 
-## 💥 BREAKING CHANGES & FOOTERS
+```text
+refactor(db)!: rename mountain image relation
 
-- If the diff contains breaking API changes, append `!` after the type/scope (e.g., `feat(api)!: update response structure`) OR include `BREAKING CHANGE: <explanation>` in the footer.
-- If referencing issues, use `Closes #<issue_number>` or `Fixes #<issue_number>` at the very end of the message.
+BREAKING CHANGE: rename the `images` relation to `mountainImages` for API and
+repository consumers.
+```
 
----
+```text
+test(auth): cover expired refresh tokens
+```
 
-## ⚡ FEW-SHOT EXAMPLES FOR INFERENCE
+## Final Checklist
 
-### Input Diff: Added Google OAuth integration in `src/auth/google.ts`
+Before responding, verify that:
+
+- The output contains only one raw commit message.
+- The type and subject use lowercase and the subject is imperative.
+- The header is at most 150 characters and has no trailing period.
+- The type matches the primary purpose of the diff.
+- The scope is accurate or intentionally omitted.
+- No issue number, breaking change, or other metadata was invented.

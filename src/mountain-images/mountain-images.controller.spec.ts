@@ -8,7 +8,7 @@ describe('MountainImagesController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MountainImagesController],
-      providers: [MountainImagesService],
+      providers: [{ provide: MountainImagesService, useValue: {} }],
     }).compile();
 
     controller = module.get<MountainImagesController>(MountainImagesController);
