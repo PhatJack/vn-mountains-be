@@ -55,7 +55,7 @@ export class R2Service {
     };
     const extension = extensionByMimeType[file.mimetype];
     console.log(file);
-    const key = `mountains/${mountainId}/${file.originalname}.${extension}`;
+    const key = `mountains/${mountainId}/${file.originalname.split('.')[0]}.${extension}`;
 
     await this.client.send(
       new PutObjectCommand({
