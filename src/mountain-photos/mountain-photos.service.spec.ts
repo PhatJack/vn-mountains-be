@@ -16,7 +16,6 @@ describe('MountainPhotosService', () => {
   const r2 = {
     uploadBuffer: vi.fn(),
     deleteObject: vi.fn(),
-    urlForKey: vi.fn((key: string) => `https://cdn.example/${key}`),
   };
 
   beforeEach(async () => {
@@ -36,7 +35,7 @@ describe('MountainPhotosService', () => {
     expect(service).toBeDefined();
   });
 
-  it('uploads to the mountain folder and stores the public URL', async () => {
+  it('uploads to the mountain folder and stores the storage key', async () => {
     const mountainId = '550e8400-e29b-41d4-a716-446655440000';
     const file = { mimetype: 'image/png', buffer: Buffer.from('image') } as Express.Multer.File;
     mountainsRepo.findOne.mockResolvedValue({ id: mountainId });
@@ -56,7 +55,6 @@ describe('MountainPhotosService', () => {
 
     await expect(service.create(mountainId, file, { caption: ' Hiker ' })).resolves.toEqual({
       id: 'image-id',
-      imageUrl: `https://cdn.example/mountains/${mountainId}/image.png`,
       storageKey: `mountains/${mountainId}/image.png`,
       caption: 'Hiker',
       takenAt: null,

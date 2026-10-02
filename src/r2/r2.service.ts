@@ -81,10 +81,6 @@ export class R2Service {
     await this.deleteObject(this.keyFromUrl(url));
   }
 
-  urlForKey(key: string): string {
-    return `${this.publicUrl}/${key}`;
-  }
-
   async deletePrefix(prefix: string): Promise<void> {
     let continuationToken: string | undefined;
 

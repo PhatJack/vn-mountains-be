@@ -75,7 +75,6 @@ export class MountainPhotosService {
   }) {
     return {
       id: photo.id,
-      imageUrl: this.r2Service.urlForKey(photo.storageKey),
       storageKey: photo.storageKey,
       caption: photo.caption,
       takenAt: photo.takenAt,
