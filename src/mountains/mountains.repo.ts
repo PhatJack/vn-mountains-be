@@ -6,7 +6,7 @@ import { DATABASE } from '../db/database.provider.js';
 import { mountainPhotos, mountains } from '../db/schema.js';
 
 export interface MountainListRow {
-	id: string;
+  id: string;
   osmId: string | null;
   name: string;
   elevationM: number | null;
@@ -24,7 +24,7 @@ export class MountainsRepository {
   findAll(): Promise<MountainListRow[]> {
     return this.db
       .select({
-				id: mountains.id,
+        id: mountains.id,
         osmId: mountains.osmId,
         name: mountains.name,
         elevationM: mountains.elevationM,
@@ -35,12 +35,16 @@ export class MountainsRepository {
       .orderBy(sql`elevation_m desc nulls last`);
   }
 
-  async findOne(id: string): Promise<Mountain | null> {
-    const [row] = await this.db
-      .select()
+  async findOne(id: string) {
+    const rows = await this.db
+      .select({ mountain: mountains, photo: mountainPhotos })
       .from(mountains)
+      .leftJoin(mountainPhotos, eq(mountainPhotos.mountainId, mountains.id))
       .where(eq(mountains.id, id));
-    return row ?? null;
+    return {
+      mountain: rows[0].mountain,
+      photos: rows.flatMap(({ photo }) => (photo ? [photo] : [])),
+    };
   }
 
   async findOneByOsmId(osmId: string) {
@@ -58,8 +62,12 @@ export class MountainsRepository {
     };
   }
 
-  create(values: MountainInsertValues): Promise<Mountain> {
-    return this.db.insert(mountains).values(values).returning().then(([row]) => row);
+  async create(values: MountainInsertValues): Promise<Mountain> {
+    return this.db
+      .insert(mountains)
+      .values(values)
+      .returning()
+      .then(([row]) => row);
   }
 
   async update(

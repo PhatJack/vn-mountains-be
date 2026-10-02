@@ -25,7 +25,7 @@ export class MountainsService {
     return rows
       .filter((row) => row.osmId !== null)
       .map((row) => ({
-				id: row.id,
+        id: row.id,
         osmId: row.osmId,
         name: row.name,
         elevationM: row.elevationM,
@@ -41,7 +41,42 @@ export class MountainsService {
       throw new NotFoundException(`Mountain #${id} not found`);
     }
 
-    return row;
+    const { mountain, photos } = row;
+
+    return {
+      id: mountain.osmId,
+      name: mountain.name,
+      nameVi: mountain.nameVi,
+      elevationM: mountain.elevationM,
+      lat: mountain.latitude,
+      lng: mountain.longitude,
+      description: mountain.description,
+      difficulty: mountain.difficulty,
+      rangeId: mountain.rangeId,
+      createdAt: mountain.createdAt,
+      updatedAt: mountain.updatedAt,
+      photos: photos
+        ? photos.map(
+            ({
+              id,
+              storageKey,
+              caption,
+              takenAt,
+              status,
+              createdAt,
+              updatedAt,
+            }) => ({
+              id,
+              storageKey,
+              caption,
+              takenAt,
+              status,
+              createdAt,
+              updatedAt,
+            }),
+          )
+        : [],
+    };
   }
 
   async findOneByOsmId(osmId: string) {
@@ -65,7 +100,8 @@ export class MountainsService {
       rangeId: mountain.rangeId,
       createdAt: mountain.createdAt,
       updatedAt: mountain.updatedAt,
-      photos: photos.map(({ id, storageKey, caption, takenAt, status, createdAt, updatedAt }) => ({
+      photos: photos.map(
+        ({
           id,
           storageKey,
           caption,
@@ -73,13 +109,25 @@ export class MountainsService {
           status,
           createdAt,
           updatedAt,
-        })),
+        }) => ({
+          id,
+          storageKey,
+          caption,
+          takenAt,
+          status,
+          createdAt,
+          updatedAt,
+        }),
+      ),
     };
   }
 
   async create(createMountainDto: CreateMountainDto) {
     return this.repo.create({
-      osmId: createMountainDto.osmId !== undefined ? String(createMountainDto.osmId) : null,
+      osmId:
+        createMountainDto.osmId !== undefined
+          ? String(createMountainDto.osmId)
+          : null,
       name: createMountainDto.name,
       slug: createMountainDto.slug,
       nameVi: createMountainDto.nameVi ?? null,
@@ -94,12 +142,10 @@ export class MountainsService {
     const existing = await this.findOne(id);
 
     return this.repo.update(id, {
-      osmId: updateMountainDto.osmId !== undefined ? String(updateMountainDto.osmId) : existing.osmId,
       name: updateMountainDto.name ?? existing.name,
-      slug: updateMountainDto.slug ?? existing.slug,
       nameVi: updateMountainDto.nameVi ?? existing.nameVi,
-      latitude: updateMountainDto.latitude ?? existing.latitude,
-      longitude: updateMountainDto.longitude ?? existing.longitude,
+      latitude: updateMountainDto.latitude ?? existing.lat,
+      longitude: updateMountainDto.longitude ?? existing.lng,
       elevationM: updateMountainDto.elevationM ?? existing.elevationM,
       description: updateMountainDto.description ?? existing.description,
     });

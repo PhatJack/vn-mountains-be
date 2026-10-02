@@ -54,7 +54,8 @@ export class R2Service {
       'image/webp': 'webp',
     };
     const extension = extensionByMimeType[file.mimetype];
-    const key = `mountains/${mountainId}/${randomUUID()}.${extension}`;
+    console.log(file);
+    const key = `mountains/${mountainId}/${file.originalname}.${extension}`;
 
     await this.client.send(
       new PutObjectCommand({
@@ -114,7 +115,9 @@ export class R2Service {
   private keyFromUrl(url: string): string {
     const publicUrl = this.publicUrl.replace(/\/$/, '');
     if (!url.startsWith(`${publicUrl}/`)) {
-      throw new Error('Image URL does not belong to the configured R2 public URL');
+      throw new Error(
+        'Image URL does not belong to the configured R2 public URL',
+      );
     }
     return url.slice(publicUrl.length + 1);
   }
