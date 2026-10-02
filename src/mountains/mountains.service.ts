@@ -25,7 +25,8 @@ export class MountainsService {
     return rows
       .filter((row) => row.osmId !== null)
       .map((row) => ({
-        id: row.osmId as string,
+				id: row.id,
+        osmId: row.osmId,
         name: row.name,
         elevationM: row.elevationM,
         lat: row.latitude,

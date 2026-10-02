@@ -6,6 +6,7 @@ import { DATABASE } from '../db/database.provider.js';
 import { mountainPhotos, mountains } from '../db/schema.js';
 
 export interface MountainListRow {
+	id: string;
   osmId: string | null;
   name: string;
   elevationM: number | null;
@@ -23,6 +24,7 @@ export class MountainsRepository {
   findAll(): Promise<MountainListRow[]> {
     return this.db
       .select({
+				id: mountains.id,
         osmId: mountains.osmId,
         name: mountains.name,
         elevationM: mountains.elevationM,

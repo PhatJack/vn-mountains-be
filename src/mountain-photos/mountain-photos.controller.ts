@@ -23,7 +23,7 @@ const ALLOWED_MIME_TYPES = new Set([
   'image/webp',
 ]);
 
-@Controller('mountains/:mountainId/images')
+@Controller('mountains/:mountainId/photos')
 export class MountainPhotosController {
   constructor(private readonly mountainPhotosService: MountainPhotosService) {}
 
