@@ -1,1 +1,0 @@
-ALTER TABLE "mountains" ADD COLUMN "tags" jsonb;

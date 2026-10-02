@@ -34,16 +34,16 @@ describe('MountainsService', () => {
     it('maps rows to the public list shape and drops missing osm_id', async () => {
       mockRepo.findAll.mockResolvedValue([
         {
-          osmId: 111,
+          osmId: '111',
           name: 'Fansipan',
-          elevation: 3147.3,
+          elevationM: 3147,
           latitude: 22.303,
           longitude: 103.775,
         },
         {
           osmId: null,
           name: 'NoOsmId',
-          elevation: 100,
+          elevationM: 100,
           latitude: 10,
           longitude: 105,
         },
@@ -53,9 +53,9 @@ describe('MountainsService', () => {
 
       expect(result).toEqual([
         {
-          id: 111,
+          id: '111',
           name: 'Fansipan',
-          elevation: 3147.3,
+          elevationM: 3147,
           lat: 22.303,
           lng: 103.775,
         },

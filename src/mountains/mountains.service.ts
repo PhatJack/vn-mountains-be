@@ -5,9 +5,9 @@ import { UpdateMountainDto } from './dto/update-mountain.dto.js';
 import { R2Service } from '../r2/r2.service.js';
 
 export interface MountainListItem {
-  id: number;
+  id: string;
   name: string;
-  elevation: number | null;
+  elevationM: number | null;
   lat: number;
   lng: number;
 }
@@ -25,9 +25,9 @@ export class MountainsService {
     return rows
       .filter((row) => row.osmId !== null)
       .map((row) => ({
-        id: row.osmId as number,
+        id: row.osmId as string,
         name: row.name,
-        elevation: row.elevation,
+        elevationM: row.elevationM,
         lat: row.latitude,
         lng: row.longitude,
       }));
@@ -43,53 +43,49 @@ export class MountainsService {
     return row;
   }
 
-  async findOneByOsmId(osmId: number) {
+  async findOneByOsmId(osmId: string) {
     const result = await this.repo.findOneByOsmId(osmId);
 
     if (!result) {
       throw new NotFoundException(`Mountain with OSM id #${osmId} not found`);
     }
 
-    const { mountain, images } = result;
+    const { mountain, photos } = result;
 
     return {
       id: mountain.osmId,
       name: mountain.name,
-      nameAscii: mountain.nameAscii,
-      altName: mountain.altName,
-      elevation: mountain.elevation,
+      nameVi: mountain.nameVi,
+      elevationM: mountain.elevationM,
       lat: mountain.latitude,
       lng: mountain.longitude,
-      province: mountain.province,
       description: mountain.description,
-      imageUrl: mountain.imageUrl,
-      tags: mountain.tags,
+      difficulty: mountain.difficulty,
+      rangeId: mountain.rangeId,
       createdAt: mountain.createdAt,
       updatedAt: mountain.updatedAt,
-      images: images
-        .sort((a, b) => a.sortOrder - b.sortOrder)
-        .map(({ id, image, sortOrder }) => ({
+      photos: photos.map(({ id, storageKey, caption, takenAt, status, createdAt, updatedAt }) => ({
           id,
-          imageUrl: image,
-          sortOrder,
+          storageKey,
+          caption,
+          takenAt,
+          status,
+          createdAt,
+          updatedAt,
         })),
     };
   }
 
   async create(createMountainDto: CreateMountainDto) {
     return this.repo.create({
-      osmId: createMountainDto.osmId ?? null,
+      osmId: createMountainDto.osmId !== undefined ? String(createMountainDto.osmId) : null,
       name: createMountainDto.name,
-      nameAscii: createMountainDto.nameAscii ?? null,
-      altName: createMountainDto.altName ?? null,
+      slug: createMountainDto.slug,
+      nameVi: createMountainDto.nameVi ?? null,
       latitude: createMountainDto.latitude,
       longitude: createMountainDto.longitude,
-      elevation: createMountainDto.elevation ?? null,
-      province: createMountainDto.province ?? null,
+      elevationM: createMountainDto.elevationM ?? null,
       description: createMountainDto.description ?? null,
-      imageUrl: createMountainDto.imageUrl ?? null,
-      createdAt: Date.now(),
-      updatedAt: null,
     });
   }
 
@@ -97,18 +93,14 @@ export class MountainsService {
     const existing = await this.findOne(id);
 
     return this.repo.update(id, {
-      osmId: updateMountainDto.osmId ?? existing.osmId,
+      osmId: updateMountainDto.osmId !== undefined ? String(updateMountainDto.osmId) : existing.osmId,
       name: updateMountainDto.name ?? existing.name,
-      nameAscii: updateMountainDto.nameAscii ?? existing.nameAscii,
-      altName: updateMountainDto.altName ?? existing.altName,
+      slug: updateMountainDto.slug ?? existing.slug,
+      nameVi: updateMountainDto.nameVi ?? existing.nameVi,
       latitude: updateMountainDto.latitude ?? existing.latitude,
       longitude: updateMountainDto.longitude ?? existing.longitude,
-      elevation: updateMountainDto.elevation ?? existing.elevation,
-      province: updateMountainDto.province ?? existing.province,
+      elevationM: updateMountainDto.elevationM ?? existing.elevationM,
       description: updateMountainDto.description ?? existing.description,
-      imageUrl: updateMountainDto.imageUrl ?? existing.imageUrl,
-      updatedAt: Date.now(),
-      updatedBy: 'admin',
     });
   }
 

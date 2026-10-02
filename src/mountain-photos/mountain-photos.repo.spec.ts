@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DATABASE } from '../db/database.provider.js';
-import { MountainImagesRepository } from './mountain-images.repo.js';
+import { MountainPhotosRepository } from './mountain-photos.repo.js';
 
-describe('MountainImagesRepository', () => {
-  let repo: MountainImagesRepository;
+describe('MountainPhotosRepository', () => {
+  let repo: MountainPhotosRepository;
   const db = { select: vi.fn(), insert: vi.fn(), delete: vi.fn() };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [MountainImagesRepository, { provide: DATABASE, useValue: db }],
+      providers: [MountainPhotosRepository, { provide: DATABASE, useValue: db }],
     }).compile();
-    repo = module.get(MountainImagesRepository);
+    repo = module.get(MountainPhotosRepository);
   });
 
   it('returns images for a mountain', async () => {

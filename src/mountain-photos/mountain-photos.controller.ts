@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Delete,
   Get,
@@ -11,7 +12,8 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { MountainImagesService } from './mountain-images.service.js';
+import { MountainPhotosService } from './mountain-photos.service.js';
+import { CreateMountainPhotoDto } from './dto/create-mountain-photo.dto.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME_TYPES = new Set([
@@ -22,8 +24,8 @@ const ALLOWED_MIME_TYPES = new Set([
 ]);
 
 @Controller('mountains/:mountainId/images')
-export class MountainImagesController {
-  constructor(private readonly mountainImagesService: MountainImagesService) {}
+export class MountainPhotosController {
+  constructor(private readonly mountainPhotosService: MountainPhotosService) {}
 
   @Post()
   @UseInterceptors(
@@ -41,17 +43,18 @@ export class MountainImagesController {
   )
   create(
     @Param('mountainId', new ParseUUIDPipe()) mountainId: string,
+    @Body() dto: CreateMountainPhotoDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
     if (!file) {
       throw new BadRequestException('An image file is required');
     }
-    return this.mountainImagesService.create(mountainId, file);
+    return this.mountainPhotosService.create(mountainId, file, dto);
   }
 
   @Get()
   findAll(@Param('mountainId', new ParseUUIDPipe()) mountainId: string) {
-    return this.mountainImagesService.findAll(mountainId);
+    return this.mountainPhotosService.findAll(mountainId);
   }
 
   @Delete(':id')
@@ -59,6 +62,6 @@ export class MountainImagesController {
     @Param('mountainId', new ParseUUIDPipe()) mountainId: string,
     @Param('id', new ParseUUIDPipe()) imageId: string,
   ) {
-    return this.mountainImagesService.remove(mountainId, imageId);
+    return this.mountainPhotosService.remove(mountainId, imageId);
   }
 }

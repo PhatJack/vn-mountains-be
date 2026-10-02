@@ -16,15 +16,14 @@ export class CreateMountainDto {
   @MaxLength(250)
   name!: string;
 
-  @IsOptional()
   @IsString()
   @MaxLength(250)
-  nameAscii?: string;
+  slug!: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(250)
-  altName?: string;
+  nameVi?: string;
 
   @IsNumber()
   latitude!: number;
@@ -34,19 +33,11 @@ export class CreateMountainDto {
 
   @IsOptional()
   @IsNumber()
-  elevation?: number;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  province?: string;
+  elevationM?: number;
 
   @IsOptional()
   @IsString()
   @Length(0, 5000)
   description?: string;
 
-  @IsOptional()
-  @IsString()
-  imageUrl?: string;
 }

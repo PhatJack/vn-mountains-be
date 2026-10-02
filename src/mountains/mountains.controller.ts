@@ -25,9 +25,9 @@ export class MountainsController {
   @Get()
   findAll(@Query('id') id?: string) {
     if (id !== undefined) {
-      const osmId = Number(id);
+      const osmId = id.trim();
 
-      if (!Number.isSafeInteger(osmId)) {
+      if (!/^\d+$/.test(osmId)) {
         throw new BadRequestException('The id query parameter must be an integer');
       }
 

@@ -4,7 +4,7 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { DatabaseModule } from './db/database.module.js';
 import { MountainsModule } from './mountains/mountains.module.js';
-import { MountainImagesModule } from './mountain-images/mountain-images.module.js';
+import { MountainPhotosModule } from './mountain-photos/mountain-photos.module.js';
 import { LoggerMiddleware } from './logger/logger.middleware.js';
 import { R2Module } from './r2/r2.module.js';
 
@@ -13,7 +13,7 @@ import { R2Module } from './r2/r2.module.js';
     ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env.local', '.env'] }),
     DatabaseModule,
     MountainsModule,
-    MountainImagesModule,
+    MountainPhotosModule,
 		R2Module
   ],
   controllers: [AppController],

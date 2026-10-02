@@ -8,7 +8,7 @@ type Area = Feature<Polygon | MultiPolygon>;
 
 function loadAreas(filename: string): Area[] {
   const raw = JSON.parse(
-    readFileSync(join(import.meta.dirname, '..', 'constant', filename), 'utf-8'),
+    readFileSync(join(import.meta.dirname, '..', 'constants', filename), 'utf-8'),
   ) as Feature | FeatureCollection | Geometry;
 
   const features: Feature[] =
