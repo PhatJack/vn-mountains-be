@@ -54,7 +54,6 @@ export class R2Service {
       'image/webp': 'webp',
     };
     const extension = extensionByMimeType[file.mimetype];
-    console.log(file);
     const key = `mountains/${mountainId}/${file.originalname.split('.')[0]}.${extension}`;
 
     await this.client.send(
